@@ -3,13 +3,13 @@ from urllib.parse import urlparse, parse_qs
 from connector import conn
 import json
 
-# Conexión a la base de datos
+"""Conexión a la base de datos"""
 cursor = conn.cursor()
 
 
-# Microservicio de consulta porperty
 def get_property(filtros):
-    # Consulta SQL basada en los filtros
+    
+    """Funcion para consulta SQL basada en los filtros"""
     query = """
         SELECT p.address, p.city, p.price, p.description, year, st.label
         FROM property p
@@ -20,17 +20,17 @@ def get_property(filtros):
         and s.update_date = (SELECT MAX(s.update_date)FROM status_history) """
     conditions = []
     for key, value in filtros.items():
-        # Si la clave pertenece a la tabla property, se aplican los filtros
+        """Si la clave pertenece a la tabla property, se aplican los filtros"""
         if key in ['address', 'city', 'price', 'status_id', 'year']:
             conditions.append(f"{key} = '{value}'")
     if conditions:
         query += " AND " + " AND ".join(conditions)
 
-    # Ejecutar la consulta SQL
+    """Ejecutar la consulta SQL"""
     cursor.execute(query)
     rows = cursor.fetchall()
 
-    # Se formatea los datos
+    """Se formatea los datos""" 
     resultado = []
     for row in rows:
         if row[0]:
@@ -47,6 +47,7 @@ def get_property(filtros):
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    """Clase que se encarga de capturar la peticion HTTP"""
     def do_GET(self):
 
         parsed_path = urlparse(self.path)
@@ -63,8 +64,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json_data.encode())
 
 
-# Función para ejecutar el servidor
+
 def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
+    """Función para ejecutar el servidor"""
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     print(f'Starting server on port {port}...')
